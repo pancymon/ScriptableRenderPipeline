@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed tiling issue with selection outline and baked cutout shadows.
 - Shadergraph Unlit Master node Premultiply acted the same as Alpha. [case 1114708](https://fogbugz.unity3d.com/f/cases/1114708/)
 - Fixed issue missing Lightprobe data if it was needed per-pixel and GPU instancing was enabled.
+- Soft ScreenSpaceShadows shader variant no longer gets stripped form builds. [case 1138236](https://fogbugz.unity3d.com/f/cases/1138236/)
 - Fixed a project import issue in the LWRP template.
 - Fixed the warnings that appear when you create new Unlit Shader Graphs using the Lightweight Render Pipeline.
 - Fixed light attenuation precision on mobile platforms.
