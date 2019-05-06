@@ -792,7 +792,6 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             private Vector4 m_RemappingAOS;
             private Vector4 m_ScalingMAB; // metal, base color alpha, mask map blue
             private Vector3 m_BlendParams;
-            private bool m_HaveEmissive; // True if this decal affect emissive or not
 
             private bool m_IsHDRenderPipelineDecal;
             // Cached value for pass index. If -1 no pass exist
