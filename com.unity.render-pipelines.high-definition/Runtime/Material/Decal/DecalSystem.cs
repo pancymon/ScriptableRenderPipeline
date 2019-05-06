@@ -238,8 +238,6 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             }
         }
 
-        private static MaterialPropertyBlock m_PropertyBlock = new MaterialPropertyBlock();
-
         private const int kDecalBlockSize = 128;
 
         // to work on Vulkan Mobile?
@@ -788,6 +786,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             private int[] m_CachedLayerMask = new int[kDecalBlockSize];
             private float[] m_CachedFadeFactor = new float[kDecalBlockSize];
             private Material m_Material;
+            private MaterialPropertyBlock m_PropertyBlock = new MaterialPropertyBlock();
             private float m_Blend = 0;
             private float m_AlbedoContribution = 0;
             private Vector4 m_BaseColor;
@@ -813,7 +812,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                 if (m_ResultIndices.Length < m_NumResults)
                     Array.Resize(ref m_ResultIndices, m_NumResults);
                 Array.Copy(value.resultIndices, m_ResultIndices, m_NumResults);
-        }
+            }
         }
 
         DecalHandle AddDecal(Matrix4x4 localToWorld, Quaternion rotation, Matrix4x4 sizeOffset, float drawDistance, float fadeScale, Vector4 uvScaleBias, bool affectsTransparency, Material material, int layerMask, float fadeFactor)
