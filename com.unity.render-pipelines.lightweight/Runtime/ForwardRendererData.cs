@@ -59,7 +59,7 @@ namespace UnityEngine.Rendering.LWRP
 
         public StencilStateData defaultStencilState => m_DefaultStencilState;
 
-        public void OnEnable()
+        protected override void OnEnable()
         {
             base.OnEnable();
 #if UNITY_EDITOR
