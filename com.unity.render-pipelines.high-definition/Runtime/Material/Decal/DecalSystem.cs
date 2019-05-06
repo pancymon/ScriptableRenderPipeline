@@ -349,7 +349,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                     m_BlendParams = new Vector3(m_Material.GetFloat("_NormalBlendSrc"), m_Material.GetFloat("_MaskBlendSrc"), m_Material.GetFloat("_MaskBlendMode"));
                     m_RemappingAOS = new Vector4(m_Material.GetFloat("_AORemapMin"), m_Material.GetFloat("_AORemapMax"), m_Material.GetFloat("_SmoothnessRemapMin"), m_Material.GetFloat("_SmoothnessRemapMax"));
                     m_ScalingMAB = new Vector4(m_Material.GetFloat("_MetallicScale"), 0.0f, m_Material.GetFloat("_DecalMaskMapBlueScale"), 0.0f);
-                    m_IsEmissive = m_Material.GetFloat("_Emissive") == 1.0f;
+                    m_HaveEmissive = m_Material.GetFloat("_Emissive") == 1.0f;
 
                     // Relies on the order shader passes are declared in Decal.shader and DecalSubshader.cs
                     m_cachedProjectorPassValue = m_Material.FindPass(s_MaterialDecalNames[perChannelMask ? MaskBlendMode : (int)Decal.MaskBlendFlags.Smoothness]);
@@ -360,6 +360,9 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                     // Relies on the order shader passes are declared in Decal.shader and DecalSubshader.cs
                     m_cachedProjectorPassValue = m_Material.FindPass(s_MaterialDecalSGNames[perChannelMask ? 1 : 0]);
                     m_cachedProjectorEmissivePassValue = m_Material.FindPass(s_MaterialDecalSGNames[2]); // Decal projector Emissive is pass 2
+
+                    // If the pass don't exist in the shader it mean emissive is disabled
+                    m_HaveEmissive = m_cachedProjectorEmissivePassValue == -1 ? false : m_HaveEmissive;
                 }
             }
 
@@ -706,11 +709,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
 
             public void RenderForwardEmissive(CommandBuffer cmd)
             {
-                if (m_Material == null)
-                    return;
-                if ((m_IsHDRenderPipelineDecal) && (!m_IsEmissive)) // in shader graph emissive will be toggled by #define
-                    return;
-                if (m_NumResults == 0)
+                if (m_Material == null || !m_HaveEmissive || m_NumResults == 0)
                     return;
 
                 int batchIndex = 0;
@@ -793,7 +792,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             private Vector4 m_RemappingAOS;
             private Vector4 m_ScalingMAB; // metal, base color alpha, mask map blue
             private Vector3 m_BlendParams;
-            private bool m_IsEmissive;
+            private bool m_HaveEmissive; // True if this decal affect emissive or not
 
             private bool m_IsHDRenderPipelineDecal;
             // Cached value for pass index

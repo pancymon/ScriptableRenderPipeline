@@ -465,11 +465,11 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                 // Caution: Order matter
                 GenerateShaderPass(masterNode, m_PassProjector3RT, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(masterNode, m_PassProjector4RT, mode, subShader, sourceAssetDependencyPaths);
-                if (masterNode.IsSlotConnected(DecalMasterNode.EmissionSlotId))
+                if (masterNode.affectsEmission.isOn)
                     GenerateShaderPass(masterNode, m_PassProjectorEmissive, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(masterNode, m_PassMesh3RT, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(masterNode, m_PassMesh4RT, mode, subShader, sourceAssetDependencyPaths);
-                if (masterNode.IsSlotConnected(DecalMasterNode.EmissionSlotId))
+                if (masterNode.affectsEmission.isOn)
                     GenerateShaderPass(masterNode, m_PassMeshEmissive, mode, subShader, sourceAssetDependencyPaths);
             }
             subShader.Deindent();
