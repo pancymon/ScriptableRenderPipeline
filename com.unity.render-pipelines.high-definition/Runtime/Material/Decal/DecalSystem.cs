@@ -349,20 +349,22 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
                     m_BlendParams = new Vector3(m_Material.GetFloat("_NormalBlendSrc"), m_Material.GetFloat("_MaskBlendSrc"), m_Material.GetFloat("_MaskBlendMode"));
                     m_RemappingAOS = new Vector4(m_Material.GetFloat("_AORemapMin"), m_Material.GetFloat("_AORemapMax"), m_Material.GetFloat("_SmoothnessRemapMin"), m_Material.GetFloat("_SmoothnessRemapMax"));
                     m_ScalingMAB = new Vector4(m_Material.GetFloat("_MetallicScale"), 0.0f, m_Material.GetFloat("_DecalMaskMapBlueScale"), 0.0f);
-                    m_HaveEmissive = m_Material.GetFloat("_Emissive") == 1.0f;
 
                     // Relies on the order shader passes are declared in Decal.shader and DecalSubshader.cs
-                    m_cachedProjectorPassValue = m_Material.FindPass(s_MaterialDecalNames[perChannelMask ? MaskBlendMode : (int)Decal.MaskBlendFlags.Smoothness]);
+                    // For HDRP/Decal, pass are always present and always enabled. We can't do emissive only decal but can discard the emissive pass
+                    int initialPassIndex = perChannelMask ? MaskBlendMode : (int)Decal.MaskBlendFlags.Smoothness;
+                    m_cachedProjectorPassValue = m_Material.FindPass(s_MaterialDecalNames[initialPassIndex]);
+
                     m_cachedProjectorEmissivePassValue = m_Material.FindPass(s_MaterialDecalNames[15]); // Decal projector Emissive is pass 15
+                    if (m_Material.GetFloat("_Emissive") != 1.0f) // Emissive is disabled, discard
+                        m_cachedProjectorEmissivePassValue = -1;
                 }
                 else
                 {
                     // Relies on the order shader passes are declared in Decal.shader and DecalSubshader.cs
+                    // With ShaderGraph m_cachedProjectorPassValue is setup to -1 if the pass isn't generated, thus we can create emissive only decal if required
                     m_cachedProjectorPassValue = m_Material.FindPass(s_MaterialDecalSGNames[perChannelMask ? 1 : 0]);
                     m_cachedProjectorEmissivePassValue = m_Material.FindPass(s_MaterialDecalSGNames[2]); // Decal projector Emissive is pass 2
-
-                    // If the pass don't exist in the shader it mean emissive is disabled
-                    m_HaveEmissive = m_cachedProjectorEmissivePassValue == -1 ? false : m_HaveEmissive;
                 }
             }
 
@@ -685,9 +687,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
 
             public void RenderIntoDBuffer(CommandBuffer cmd)
             {
-                if (m_Material == null)
-                    return;
-                if (m_NumResults == 0)
+                if (m_Material == null || m_cachedProjectorPassValue == -1 || (m_NumResults == 0))
                     return;
 
                 int batchIndex = 0;
@@ -709,7 +709,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
 
             public void RenderForwardEmissive(CommandBuffer cmd)
             {
-                if (m_Material == null || !m_HaveEmissive || m_NumResults == 0)
+                if (m_Material == null || m_cachedProjectorEmissivePassValue == -1 || m_NumResults == 0)
                     return;
 
                 int batchIndex = 0;
@@ -795,7 +795,7 @@ namespace UnityEngine.Experimental.Rendering.HDPipeline
             private bool m_HaveEmissive; // True if this decal affect emissive or not
 
             private bool m_IsHDRenderPipelineDecal;
-            // Cached value for pass index
+            // Cached value for pass index. If -1 no pass exist
             // The projector decal rendering code relies on the order shader passes that are declared in Decal.shader and DecalSubshader.cs
             // At the init of material we look for pass index by name and cached the result.
             private int m_cachedProjectorPassValue;

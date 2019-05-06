@@ -462,15 +462,25 @@ namespace UnityEditor.Experimental.Rendering.HDPipeline
                     subShader.AddShaderChunk(tagsVisitor.ToString(), false);
                 }
 
-                // Caution: Order matter
-                GenerateShaderPass(masterNode, m_PassProjector3RT, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPass(masterNode, m_PassProjector4RT, mode, subShader, sourceAssetDependencyPaths);
+                // Caution: Order of GenerateShaderPass matter. Only generate required pass
+                if (masterNode.affectsAlbedo.isOn || masterNode.affectsNormal.isOn || masterNode.affectsMetal.isOn || masterNode.affectsAO.isOn || masterNode.affectsSmoothness.isOn)
+                {
+                    GenerateShaderPass(masterNode, m_PassProjector3RT, mode, subShader, sourceAssetDependencyPaths);
+                    GenerateShaderPass(masterNode, m_PassProjector4RT, mode, subShader, sourceAssetDependencyPaths);
+                }
                 if (masterNode.affectsEmission.isOn)
+                {
                     GenerateShaderPass(masterNode, m_PassProjectorEmissive, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPass(masterNode, m_PassMesh3RT, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPass(masterNode, m_PassMesh4RT, mode, subShader, sourceAssetDependencyPaths);
+                }
+                if (masterNode.affectsAlbedo.isOn || masterNode.affectsNormal.isOn || masterNode.affectsMetal.isOn || masterNode.affectsAO.isOn || masterNode.affectsSmoothness.isOn)
+                {
+                    GenerateShaderPass(masterNode, m_PassMesh3RT, mode, subShader, sourceAssetDependencyPaths);
+                    GenerateShaderPass(masterNode, m_PassMesh4RT, mode, subShader, sourceAssetDependencyPaths);
+                }
                 if (masterNode.affectsEmission.isOn)
+                {
                     GenerateShaderPass(masterNode, m_PassMeshEmissive, mode, subShader, sourceAssetDependencyPaths);
+                }
             }
             subShader.Deindent();
             subShader.AddShaderChunk("}", true);
