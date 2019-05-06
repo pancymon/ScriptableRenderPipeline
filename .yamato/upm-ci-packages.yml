@@ -16,9 +16,7 @@ projects:
   - name: VFXMain
     folder: VisualEffectGraph
     packagename: com.unity.visualeffectgraph
-  - name: VFX_LWRP
-    folder: VisualEffectGraph_LWRP
-    packagename: com.unity.visualeffectgraph
+
 ---
 all_package_ci:
   name: Pack and test all packages
